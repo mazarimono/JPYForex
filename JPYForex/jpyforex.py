@@ -1,8 +1,9 @@
-import pandas as pd
-import pandas_datareader as pdr
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
+
+import pandas as pd
+import pandas_datareader as pdr # type: ignore
 
 
 @dataclass
@@ -13,8 +14,8 @@ class JPYForex:
     end_date: Optional[str] = None
     """
     Args:
-        currency: 円建てデータを取得する通貨を指定 
-            現状は 
+        currency: 円建てデータを取得する通貨を指定
+            現状は
             "USD" : 米ドル
             "EUR" : ユーロ
             "CNY" : 人民元
@@ -45,7 +46,7 @@ class JPYForex:
         return cur_dict[self.currency]
 
     @property
-    def start_datetime(self):
+    def start_datetime(self) -> Optional[datetime]:
         if self.start_date is not None:
             st = self._date_splitter(self.start_date)
             return st
@@ -53,7 +54,7 @@ class JPYForex:
             return None
 
     @property
-    def end_datetime(self):
+    def end_datetime(self) -> Optional[datetime]:
         if self.end_date is not None:
             et = self._date_splitter(self.end_date)
             return et
@@ -88,10 +89,10 @@ class JPYForex:
             try:
                 df = df.resample(self.freq).mean()
             except ValueError:
-                raise ValueError('invalid freq')
+                raise ValueError("invalid freq")
         return df
 
-    def _date_splitter(self, d: str):
+    def _date_splitter(self, d: str) -> datetime:
         if not isinstance(d, str):
             raise ValueError("Input must be a string.")
         if len(d) != 8:
@@ -111,5 +112,4 @@ class JPYForex:
 if __name__ == "__main__":
     t = JPYForex("CNY", freq="Q", start_date="20211021", end_date="20220111")
     d = t.get_data()
-    print(d.info())
     print(d)
