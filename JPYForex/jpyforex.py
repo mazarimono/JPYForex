@@ -84,11 +84,19 @@ class JPYForex:
     
 
     def _date_splitter(self, d: str):
-        str_d = str(d)
-        year_int = int(str_d[:4])
-        month_int = int(str_d[4:6])
-        day_int = int(str_d[6:])
-        dt = datetime(year_int, month_int, day_int)
+        if not isinstance(d, str):
+            raise ValueError('Input must be a string.')
+        if len(d) != 8:
+            raise ValueError('Input string must be 8 characters.')
+        try:
+            str_d = str(d)
+            year_int = int(str_d[:4])
+            month_int = int(str_d[4:6])
+            day_int = int(str_d[6:])
+            dt = datetime(year_int, month_int, day_int)
+        except ValueError:
+            raise ValueError("Invalid date format.")
+        
         return dt
 
 if __name__ == "__main__":
