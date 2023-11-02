@@ -4,14 +4,14 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
+
 @dataclass
 class JPYForex:
-
-    currency: str = 'USD'
-    freq: str = 'D'
+    currency: str = "USD"
+    freq: str = "D"
     start_date: Optional[str] = None
     end_date: Optional[str] = None
-    '''
+    """
     Args:
         currency: 円建てデータを取得する通貨を指定 
             現状は 
@@ -37,16 +37,13 @@ class JPYForex:
         index: 日付
         columns: 通貨名: データ
 
-    '''
+    """
 
     @property
     def cur_code(self) -> str:
-        cur_dict = {
-            'USD': 'DEXJPUS',
-            'EUR': 'DEXUSEU',
-            'CNY': 'DEXCHUS'}
+        cur_dict = {"USD": "DEXJPUS", "EUR": "DEXUSEU", "CNY": "DEXCHUS"}
         return cur_dict[self.currency]
-    
+
     @property
     def start_datetime(self):
         if self.start_date is not None:
@@ -54,7 +51,7 @@ class JPYForex:
             return st
         else:
             return None
-    
+
     @property
     def end_datetime(self):
         if self.end_date is not None:
@@ -63,31 +60,42 @@ class JPYForex:
         else:
             return None
 
-
     def get_data(self) -> pd.DataFrame:
-        if self.currency == 'USD':
-            df = pdr.get_data_fred(self.cur_code, start=self.start_datetime, end=self.end_datetime)
-        elif self.currency == 'EUR':
-            df = pdr.get_data_fred([self.cur_code, 'DEXJPUS'], start=self.start_datetime, end=self.end_datetime)
-            df['DEXJPEU'] = df.apply(lambda x: x[0] * x[1], axis=1)
-            df = df[['DEXJPEU']]
-        elif self.currency == 'CNY':
-            df = pdr.get_data_fred([self.cur_code, 'DEXJPUS'], start=self.start_datetime, end=self.end_datetime)
-            df['DEXJPCH'] = df.apply(lambda x: x[1] / x[0], axis=1)
-            df = df[['DEXJPCH']]
+        if self.currency == "USD":
+            df = pdr.get_data_fred(
+                self.cur_code, start=self.start_datetime, end=self.end_datetime
+            )
+        elif self.currency == "EUR":
+            df = pdr.get_data_fred(
+                [self.cur_code, "DEXJPUS"],
+                start=self.start_datetime,
+                end=self.end_datetime,
+            )
+            df["DEXJPEU"] = df.apply(lambda x: x[0] * x[1], axis=1)
+            df = df[["DEXJPEU"]]
+        elif self.currency == "CNY":
+            df = pdr.get_data_fred(
+                [self.cur_code, "DEXJPUS"],
+                start=self.start_datetime,
+                end=self.end_datetime,
+            )
+            df["DEXJPCH"] = df.apply(lambda x: x[1] / x[0], axis=1)
+            df = df[["DEXJPCH"]]
         else:
-            raise ValueError('その通貨コードには対応していません')
+            raise ValueError("その通貨コードには対応していません")
 
-        if self.freq != 'D':
-            df = df.resample(self.freq).mean()
+        if self.freq != "D":
+            try:
+                df = df.resample(self.freq).mean()
+            except ValueError:
+                raise ValueError('invalid freq')
         return df
-    
 
     def _date_splitter(self, d: str):
         if not isinstance(d, str):
-            raise ValueError('Input must be a string.')
+            raise ValueError("Input must be a string.")
         if len(d) != 8:
-            raise ValueError('Input string must be 8 characters.')
+            raise ValueError("Input string must be 8 characters.")
         try:
             str_d = str(d)
             year_int = int(str_d[:4])
@@ -96,11 +104,12 @@ class JPYForex:
             dt = datetime(year_int, month_int, day_int)
         except ValueError:
             raise ValueError("Invalid date format.")
-        
+
         return dt
 
+
 if __name__ == "__main__":
-    t = JPYForex("CNY", freq='Q', start_date='20211021', end_date='20220111')
+    t = JPYForex("CNY", freq="Q", start_date="20211021", end_date="20220111")
     d = t.get_data()
     print(d.info())
     print(d)
