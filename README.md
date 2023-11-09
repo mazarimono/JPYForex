@@ -11,6 +11,12 @@ JPYForex is a Python package that allows you to easily retrieve exchange rates f
 - Easy to Use: With just a few lines of code, you can retrieve exchange rates denominated in yen.
 - Supports Multiple Currencies: Supports rates for USD/JPY, EUR/JPY, and CNY/JPY.
 
+## 注意 Attention
+
+FREDのデータはパーソナル、ノンコマーシャル向け専用です。商業利用はお控えください。
+
+The data from FRED is exclusively for personal, non-commercial use. Please do not use for commercial purposes.
+
 ## インストール
 
 ```
